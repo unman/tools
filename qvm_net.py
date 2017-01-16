@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 """
 Show network tree
 
@@ -13,8 +14,13 @@ qvm_collection.unlock_db()
 qvm_collection.pop(0)
 
 def tree(netvm, padding):
+    names={}
     padding = padding + '    '
-    for vm in netvm.connected_vms:
+    connected = netvm.connected_vms
+    for i in connected:
+        names[i] = connected[i].name
+    for name in sorted(names.values()):
+        vm = qvm_collection.get_qid_by_name(name)
         if qvm_collection[vm].is_template():
             print padding,'|->',qvm_collection[vm].name,'(Tpl)'
         else:
