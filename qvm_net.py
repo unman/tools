@@ -21,10 +21,14 @@ def tree(netvm, padding):
         names[i] = connected[i].name
     for name in sorted(names.values()):
         vm = qvm_collection.get_qid_by_name(name)
-        if qvm_collection[vm].is_template():
-            print padding,'|->',qvm_collection[vm].name,'(Tpl)'
+        if qvm_collection[vm].is_running():
+            vm_name  = qvm_collection[vm].name + '* '
         else:
-            print padding,'|->',qvm_collection[vm].name
+            vm_name  = qvm_collection[vm].name
+        if qvm_collection[vm].is_template():
+            print padding,'|->',vm_name,'(Tpl)'
+        else:
+            print padding,'|->',vm_name
         if qvm_collection[vm].is_netvm() :
             tree(qvm_collection[vm], padding)         
           
