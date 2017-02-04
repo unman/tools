@@ -1,0 +1,31 @@
+#!/bin/sh
+if [ $# -eq 0 -o $# -gt 2 ] ; then
+        echo 'Usage: switch_dvm templatename [command]'
+        exit 1
+fi
+TEMPLATENAME=$1
+DVMTMPL="$TEMPLATENAME"-dvm
+DVMTMPLDIR="/var/lib/qubes/appvms/$DVMTMPL"
+ROOT=/var/lib/qubes/dvmdata/savefile-root
+DEFAULT=/var/lib/qubes/dvmdata/default-savefile
+CURRENT=/var/run/qubes/current-savefile
+SHMDIR=/dev/shm/qubes
+SHMCOPY=$SHMDIR/current-savefile
+if [ -d $DVMTMPLDIR ] ; then
+rm -f $ROOT $DEFAULT $CURRENT
+ln -s "$DVMTMPLDIR/dvm-savefile" $DEFAULT
+ln -s "/var/lib/qubes/vm-templates/$TEMPLATENAME/root.img" $ROOT
+rm -f $SHMCOPY
+cp $DEFAULT $SHMCOPY || exit 1
+chgrp qubes $SHMCOPY
+chmod 660 $SHMCOPY
+ln -s $SHMCOPY $CURRENT
+rm /var/lib/qubes/dvmdata/vmdir
+ln -s  $DVMTMPLDIR /var/lib/qubes/dvmdata/vmdir
+else
+echo "Creating new dvm"
+qvm-create-default-dvm $1
+fi
+if [ $2 ] ; then
+echo $2 | /usr/lib/qubes/qfile-daemon-dvm qubes.VMShell dom0 DEFAULT red
+fi
